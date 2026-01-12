@@ -72,11 +72,14 @@ export function addCategory(name: string): Category {
 /**
  * 更新分类
  */
-export function updateCategory(id: string, name: string): Category | null {
+export function updateCategory(id: string, updates: Partial<Omit<Category, 'id'>>): Category | null {
   const categories = getCategories()
   const index = categories.findIndex(c => c.id === id)
   if (index === -1) return null
-  categories[index].name = name
+  categories[index] = {
+    ...categories[index],
+    ...updates
+  }
   store.set('categories', categories)
   return categories[index]
 }

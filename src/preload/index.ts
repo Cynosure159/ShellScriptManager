@@ -12,8 +12,8 @@ const api = {
   // ==================== 分类相关 ====================
   getCategories: (): Promise<Category[]> => ipcRenderer.invoke('get-categories'),
   addCategory: (name: string): Promise<Category> => ipcRenderer.invoke('add-category', name),
-  updateCategory: (id: string, name: string): Promise<Category | null> => 
-    ipcRenderer.invoke('update-category', id, name),
+  updateCategory: (id: string, updates: string | Partial<Category>): Promise<Category | null> => 
+    ipcRenderer.invoke('update-category', id, updates),
   deleteCategory: (id: string): Promise<boolean> => ipcRenderer.invoke('delete-category', id),
 
   // ==================== 脚本相关 ====================

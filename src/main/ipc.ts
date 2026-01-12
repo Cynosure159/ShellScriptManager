@@ -55,8 +55,8 @@ export function registerIpcHandlers(): void {
     return addCategory(name)
   })
 
-  ipcMain.handle('update-category', (_, id: string, name: string) => {
-    return updateCategory(id, name)
+  ipcMain.handle('update-category', (_, id: string, updates: any) => {
+    return updateCategory(id, updates)
   })
 
   ipcMain.handle('delete-category', (_, id: string) => {
