@@ -63,6 +63,7 @@ interface Script {
   name: string
   description: string
   content: string
+  scriptType?: 'bash' | 'batch' | 'powershell'
   createdAt: number
   updatedAt: number
 }
@@ -81,5 +82,12 @@ npm run build:win   # 构建 Windows 安装包
 2. **脚本管理** - 创建、编辑、删除脚本
 3. **脚本编辑** - CodeMirror 语法高亮编辑器
 4. **脚本执行** - 运行 Bash 脚本并实时显示输出
+5. **导入导出** - JSON 格式导入导出数据
 6. **脚本类型** - 支持 Batch (Windows CMD) 和 Bash (Linux/macOS)
 7. **界面增强** - 终端高度可拖拽调整，运行前自动清空输出
+
+## 优化建议 (待办)
+1. **安全性增强**: App 启动时清理 `temp` 目录残留的脚本文件。
+2. **终端性能**: 优化大量输出时的性能，采用 buffer 流式更新策略。
+3. **各种 Shell 支持**: 增加对 Git Bash 或 WSL 的自动探测和支持。
+4. **用户体验**: 增加脚本运行快捷键 (Ctrl+R)，支持列表拖拽排序。
