@@ -26,8 +26,8 @@ const api = {
   deleteScript: (id: string): Promise<boolean> => ipcRenderer.invoke('delete-script', id),
 
   // ==================== 脚本执行 ====================
-  runScript: (scriptId: string, content: string, scriptType: string): Promise<ScriptExecutionResult> =>
-    ipcRenderer.invoke('run-script', scriptId, content, scriptType),
+  runScript: (scriptId: string, content: string, scriptType: string, workDir?: string): Promise<ScriptExecutionResult> =>
+    ipcRenderer.invoke('run-script', scriptId, content, scriptType, workDir),
   stopScript: (scriptId: string): Promise<boolean> => ipcRenderer.invoke('stop-script', scriptId),
   onScriptOutput: (callback: (scriptId: string, output: string) => void) => {
     const handler = (_: Electron.IpcRendererEvent, scriptId: string, output: string) => {
@@ -41,7 +41,12 @@ const api = {
   exportData: (): Promise<{ success: boolean; path?: string; error?: string }> =>
     ipcRenderer.invoke('export-data'),
   importData: (): Promise<{ success: boolean; error?: string }> =>
-    ipcRenderer.invoke('import-data')
+    ipcRenderer.invoke('import-data'),
+    
+  // ==================== 全局配置 & 系统 ====================
+  getConfig: (key: string): Promise<any> => ipcRenderer.invoke('get-config', key),
+  setConfig: (key: string, value: any): Promise<void> => ipcRenderer.invoke('set-config', key, value),
+  selectDirectory: (): Promise<string | null> => ipcRenderer.invoke('select-directory')
 }
 
 // 暴露 API 给渲染进程

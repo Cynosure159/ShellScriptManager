@@ -66,7 +66,29 @@ export function registerIpcHandlers(): void {
 
   // ==================== 脚本执行 ====================
 
-  ipcMain.handle('run-script', (event, scriptId: string, content: string, scriptType: string) => {
+  // ==================== 全局配置 & 系统 ====================
+  
+  ipcMain.handle('get-config', (_, key: string) => {
+    return import('./store').then(m => m.getConfig(key))
+  })
+
+  ipcMain.handle('set-config', (_, key: string, value: any) => {
+    return import('./store').then(m => m.setConfig(key, value))
+  })
+
+  ipcMain.handle('select-directory', async () => {
+    const result = await dialog.showOpenDialog({
+      properties: ['openDirectory']
+    })
+    if (result.canceled || result.filePaths.length === 0) {
+      return null
+    }
+    return result.filePaths[0]
+  })
+
+  // ==================== 脚本执行 ====================
+
+  ipcMain.handle('run-script', (event, scriptId: string, content: string, scriptType: string, workDir?: string) => {
     return new Promise((resolve) => {
       const tmpDir = os.tmpdir()
       const isWindows = process.platform === 'win32'
@@ -109,8 +131,11 @@ export function registerIpcHandlers(): void {
       }
 
       // 启动脚本进程
+      // 优先使用传入的 workDir, 其次是 Global Config (渲染进程传参时已处理), 再次是 homedir
+      const cwd = workDir && fs.existsSync(workDir) ? workDir : os.homedir()
+
       const child = spawn(shell, args, {
-        cwd: os.homedir(),
+        cwd: cwd,
         env: {
           ...process.env,
           LANG: 'en_US.UTF-8',
