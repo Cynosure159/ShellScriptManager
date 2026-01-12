@@ -21,6 +21,27 @@ import {
 const runningProcesses = new Map<string, ChildProcess>()
 
 /**
+ * 清理临时目录中的残留脚本文件
+ */
+export function cleanupTempFiles(): void {
+  try {
+    const tmpDir = os.tmpdir()
+    const files = fs.readdirSync(tmpDir)
+    const scriptFiles = files.filter((f) => f.startsWith('script_') && (f.endsWith('.bat') || f.endsWith('.ps1') || f.endsWith('.sh')))
+    
+    for (const file of scriptFiles) {
+      try {
+        fs.unlinkSync(path.join(tmpDir, file))
+      } catch {
+        // 忽略单个文件删除错误（可能正在被另一个实例运行）
+      }
+    }
+  } catch (error) {
+    console.error('Failed to cleanup temp files:', error)
+  }
+}
+
+/**
  * 注册所有 IPC 处理器
  */
 export function registerIpcHandlers(): void {
