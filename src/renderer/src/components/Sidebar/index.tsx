@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { ActionIcon, TextInput, Modal, Button, Group } from '@mantine/core'
+import { DragDropContext, Droppable, Draggable, DropResult } from '@hello-pangea/dnd'
 import { useAppStore } from '../../stores/appStore'
 import SettingsModal from '../SettingsModal'
 
@@ -15,6 +16,7 @@ export default function Sidebar() {
         addCategory,
         updateCategory,
         deleteCategory,
+        reorderCategories,
         exportData,
         importData
     } = useAppStore()
@@ -64,6 +66,21 @@ export default function Sidebar() {
         setIsEditModalOpen(true)
     }
 
+    // 拖拽结束处理
+    const handleDragEnd = async (result: DropResult) => {
+        if (!result.destination) return
+
+        const sourceIndex = result.source.index
+        const destinationIndex = result.destination.index
+
+        if (sourceIndex === destinationIndex) return
+
+        await reorderCategories(sourceIndex, destinationIndex)
+    }
+
+    const defaultCategory = categories.find(c => c.id === 'default')
+    const customCategories = categories.filter(c => c.id !== 'default')
+
     return (
         <div className="sidebar">
             <div className="sidebar-header">
@@ -83,17 +100,50 @@ export default function Sidebar() {
             </div>
 
             <div className="category-list">
-                {categories.map(category => (
+                {defaultCategory && (
                     <div
-                        key={category.id}
-                        className={`category-item ${selectedCategoryId === category.id ? 'active' : ''}`}
-                        onClick={() => selectCategory(category.id)}
-                        onDoubleClick={() => category.id !== 'default' && openEditModal(category)}
+                        key={defaultCategory.id}
+                        className={`category-item ${selectedCategoryId === defaultCategory.id ? 'active' : ''}`}
+                        onClick={() => selectCategory(defaultCategory.id)}
                     >
-                        <span className="category-name">{category.name}</span>
-                        <span className="category-count">{getScriptCount(category.id)}</span>
+                        <span className="category-name">{defaultCategory.name}</span>
+                        <span className="category-count">{getScriptCount(defaultCategory.id)}</span>
                     </div>
-                ))}
+                )}
+
+                <DragDropContext onDragEnd={handleDragEnd}>
+                    <Droppable droppableId="category-list">
+                        {(provided) => (
+                            <div
+                                {...provided.droppableProps}
+                                ref={provided.innerRef}
+                            >
+                                {customCategories.map((category, index) => (
+                                    <Draggable key={category.id} draggableId={category.id} index={index}>
+                                        {(provided, snapshot) => (
+                                            <div
+                                                ref={provided.innerRef}
+                                                {...provided.draggableProps}
+                                                {...provided.dragHandleProps}
+                                                style={{
+                                                    ...provided.draggableProps.style,
+                                                    opacity: snapshot.isDragging ? 0.8 : 1
+                                                }}
+                                                className={`category-item ${selectedCategoryId === category.id ? 'active' : ''} ${snapshot.isDragging ? 'dragging' : ''}`}
+                                                onClick={() => selectCategory(category.id)}
+                                                onDoubleClick={() => openEditModal(category)}
+                                            >
+                                                <span className="category-name">{category.name}</span>
+                                                <span className="category-count">{getScriptCount(category.id)}</span>
+                                            </div>
+                                        )}
+                                    </Draggable>
+                                ))}
+                                {provided.placeholder}
+                            </div>
+                        )}
+                    </Droppable>
+                </DragDropContext>
             </div>
 
             {/* 底部操作按钮 */}
