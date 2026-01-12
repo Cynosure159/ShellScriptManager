@@ -13,11 +13,14 @@ interface TerminalProps {
  * 终端输出组件
  */
 export default function Terminal({ height = 200 }: TerminalProps) {
-    const { terminalOutput, clearTerminalOutput, runningScriptId } = useAppStore()
+    // 仅获取不需要重渲染的 action
+    // 注意：不再从 store 解构 terminalOutput，避免每次追加都触发重渲染
+    const { clearTerminalOutput, runningScriptId } = useAppStore()
 
     const terminalRef = useRef<HTMLDivElement>(null)
     const xtermRef = useRef<XTerm | null>(null)
     const fitAddonRef = useRef<FitAddon | null>(null)
+    const isInitialMount = useRef(true)
 
     // 初始化 xterm
     useEffect(() => {
@@ -45,6 +48,12 @@ export default function Terminal({ height = 200 }: TerminalProps) {
         xtermRef.current = term
         fitAddonRef.current = fitAddon
 
+        // 初始化时加载已有内容
+        const currentOutput = useAppStore.getState().terminalOutput
+        if (currentOutput) {
+            term.write(currentOutput)
+        }
+
         // 监听窗口大小变化
         const handleResize = () => {
             if (fitAddonRef.current) {
@@ -66,19 +75,36 @@ export default function Terminal({ height = 200 }: TerminalProps) {
         }
     }, [height])
 
-    // 监听输出变化
+    // 监听 terminalOutput 清空事件 (通过 subscribe)
+    // 这是为了处理 "清空" 按钮或 "重新运行" 时的清屏需求
+    // 我们只关心是否被清空（变成空字符串），而不关心追加的内容
     useEffect(() => {
-        if (xtermRef.current) {
-            xtermRef.current.clear()
-            xtermRef.current.write(terminalOutput)
-        }
-    }, [terminalOutput])
+        const unsub = useAppStore.subscribe((state, prevState) => {
+            if (state.terminalOutput === '' && prevState.terminalOutput !== '') {
+                xtermRef.current?.clear()
+            }
+        })
+        return unsub
+    }, [])
 
-    // 监听脚本输出事件
+    // 监听脚本实时输出 (Stream)
+    // 直接写入 xterm，并同步到 store (store update 不会触发此组件重渲染，因未 destroy terminalOutput)
     useEffect(() => {
+        if (isInitialMount.current) {
+            isInitialMount.current = false
+            // 避免 React Strict Mode 下的重复监听问题，虽然生产环境只运行一次
+            // 如果已在初始化逻辑中处理，这里不需要做额外保护，
+            // 因为 onScriptOutput 返回的 unsubscribe 会正确清理
+        }
+
         const unsubscribe = window.api.onScriptOutput((_scriptId, output) => {
+            // 1. 直接写入终端 (高性能)
+            xtermRef.current?.write(output)
+
+            // 2. 同步到 Store (用于持久化，不触发组件 UI 更新)
             useAppStore.getState().appendTerminalOutput(output)
         })
+
         return unsubscribe
     }, [])
 
