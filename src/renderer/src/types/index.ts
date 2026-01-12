@@ -22,6 +22,7 @@ export interface Script {
   description: string
   content: string
   scriptType: ScriptType
+  workDir?: string
   createdAt: number
   updatedAt: number
 }

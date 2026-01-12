@@ -1,5 +1,5 @@
 import { useEffect, useRef } from 'react'
-import { ActionIcon } from '@mantine/core'
+import { ActionIcon, TextInput, Tooltip, Group } from '@mantine/core'
 import { Terminal as XTerm } from '@xterm/xterm'
 import { FitAddon } from '@xterm/addon-fit'
 import '@xterm/xterm/css/xterm.css'
@@ -15,7 +15,12 @@ interface TerminalProps {
 export default function Terminal({ height = 200 }: TerminalProps) {
     // 仅获取不需要重渲染的 action
     // 注意：不再从 store 解构 terminalOutput，避免每次追加都触发重渲染
-    const { clearTerminalOutput, runningScriptId } = useAppStore()
+    const {
+        clearTerminalOutput,
+        runningScriptId,
+        editingScript,
+        updateEditingScript
+    } = useAppStore()
 
     const terminalRef = useRef<HTMLDivElement>(null)
     const xtermRef = useRef<XTerm | null>(null)
@@ -88,7 +93,7 @@ export default function Terminal({ height = 200 }: TerminalProps) {
     }, [])
 
     // 监听脚本实时输出 (Stream)
-    // 直接写入 xterm，并同步到 store (store update 不会触发此组件重渲染，因未 destroy terminalOutput)
+    // 直接写入 xterm，并同步到 store (store update 不会触发此组件 UI 更新)
     useEffect(() => {
         if (isInitialMount.current) {
             isInitialMount.current = false
@@ -108,12 +113,56 @@ export default function Terminal({ height = 200 }: TerminalProps) {
         return unsubscribe
     }, [])
 
+    // 选择工作目录
+    const handleSelectWorkDir = async () => {
+        const path = await window.api.selectDirectory()
+        if (path && editingScript) {
+            updateEditingScript({ workDir: path })
+        }
+    }
+
     return (
         <div className="terminal-panel" style={{ height }}>
             <div className="terminal-header">
-                <span className="terminal-title">
-                    输出 {runningScriptId ? '(运行中...)' : ''}
-                </span>
+                <Group gap="xs" style={{ flex: 1, minWidth: 0 }}>
+                    <span className="terminal-title" style={{ whiteSpace: 'nowrap' }}>
+                        输出 {runningScriptId ? '(运行中...)' : ''}
+                    </span>
+
+                    {editingScript && (
+                        <TextInput
+                            size="xs"
+                            placeholder="运行目录 (默认: User Home)"
+                            value={editingScript.workDir || ''}
+                            onChange={(e) => updateEditingScript({ workDir: e.target.value })}
+                            rightSection={
+                                <ActionIcon
+                                    size="xs"
+                                    variant="subtle"
+                                    color="gray"
+                                    onClick={handleSelectWorkDir}
+                                    title="浏览文件夹"
+                                >
+                                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                        <path d="M22,19a2,2,0,0,1-2,2H4a2,2,0,0,1-2-2V5A2,2,0,0,1,4,3H9l2,3h9a2,2,0,0,1,2,2Z"></path>
+                                    </svg>
+                                </ActionIcon>
+                            }
+                            styles={{
+                                root: { flex: 1, maxWidth: 300 },
+                                input: {
+                                    height: 22,
+                                    minHeight: 22,
+                                    backgroundColor: '#25262b',
+                                    borderColor: '#373A40',
+                                    color: '#909296',
+                                    fontSize: 12
+                                }
+                            }}
+                        />
+                    )}
+                </Group>
+
                 <ActionIcon
                     variant="subtle"
                     color="gray"
