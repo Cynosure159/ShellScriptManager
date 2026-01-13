@@ -44,6 +44,7 @@ linux:
     - AppImage
     - deb
   category: Utility
+  maintainer: Cynosure159 <cynosure159@example.com>
 appImage:
   artifactName: ${productName}-${version}.${ext}
 deb:

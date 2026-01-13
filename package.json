@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "description": "Shell Script Manager - 管理、编辑和运行 Bash 脚本",
   "main": "./out/main/index.js",
-  "author": "",
+  "author": "Cynosure159 <cynosure159@example.com>",
   "scripts": {
     "format": "prettier --write .",
     "lint": "eslint --cache .",
