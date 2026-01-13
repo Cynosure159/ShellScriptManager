@@ -16,6 +16,7 @@ export default function ScriptList({ width }: ScriptListProps) {
         selectedScriptId,
         selectScript,
         addScript,
+        importScript,
         deleteScript,
         reorderScripts
     } = useAppStore()
@@ -47,18 +48,33 @@ export default function ScriptList({ width }: ScriptListProps) {
         <div className="script-list-panel" style={width ? { width, minWidth: width } : undefined}>
             <div className="script-list-header">
                 <span className="script-list-title">脚本</span>
-                <ActionIcon
-                    variant="subtle"
-                    color="violet"
-                    size="sm"
-                    onClick={() => addScript()}
-                    title="添加脚本"
-                >
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                        <line x1="12" y1="5" x2="12" y2="19" />
-                        <line x1="5" y1="12" x2="19" y2="12" />
-                    </svg>
-                </ActionIcon>
+                <div style={{ display: 'flex', gap: '4px' }}>
+                    <ActionIcon
+                        variant="subtle"
+                        color="violet"
+                        size="sm"
+                        onClick={() => importScript()}
+                        title="导入脚本文件 (.sh/.bat/.ps1)"
+                    >
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                            <polyline points="7 10 12 15 17 10" />
+                            <line x1="12" y1="15" x2="12" y2="3" />
+                        </svg>
+                    </ActionIcon>
+                    <ActionIcon
+                        variant="subtle"
+                        color="violet"
+                        size="sm"
+                        onClick={() => addScript()}
+                        title="添加脚本"
+                    >
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                            <line x1="12" y1="5" x2="12" y2="19" />
+                            <line x1="5" y1="12" x2="19" y2="12" />
+                        </svg>
+                    </ActionIcon>
+                </div>
             </div>
 
             <DragDropContext onDragEnd={handleDragEnd}>

@@ -12,6 +12,7 @@ export default function App() {
     const { loadData, selectedCategoryId } = useAppStore()
     const [terminalHeight, setTerminalHeight] = useState(200)
     const [scriptListWidth, setScriptListWidth] = useState(280)
+    const [isCategoryCollapsed, setIsCategoryCollapsed] = useState(false)
 
     // 记录拖拽目标: 'terminal' | 'scriptList' | null
     const resizeTarget = useRef<string | null>(null)
@@ -67,7 +68,10 @@ export default function App() {
     return (
         <div className="app-layout">
             {/* 分类侧边栏 */}
-            <Sidebar />
+            <Sidebar
+                isCollapsed={isCategoryCollapsed}
+                onToggleCollapse={() => setIsCategoryCollapsed(!isCategoryCollapsed)}
+            />
 
             {/* 脚本列表 (带拖拽条) */}
             {selectedCategoryId && (
