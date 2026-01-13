@@ -285,10 +285,11 @@ export function registerIpcHandlers(): void {
     }
   })
 
-  ipcMain.handle('save-terminal-output', async (_, content: string) => {
+  ipcMain.handle('save-terminal-output', async (_, content: string, suggestedName?: string) => {
+    const defaultFileName = suggestedName ? `${suggestedName}-output.log` : 'terminal-output.log'
     const result = await dialog.showSaveDialog({
       title: '保存终端输出',
-      defaultPath: 'terminal-output.log',
+      defaultPath: defaultFileName,
       filters: [
         { name: 'Log Files', extensions: ['log', 'txt'] },
         { name: 'All Files', extensions: ['*'] }

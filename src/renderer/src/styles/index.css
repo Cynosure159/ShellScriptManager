@@ -300,6 +300,12 @@ body {
   background-color: #8B7EC8;
 }
 
+.collapse-handle:hover {
+  background-color: #373a40 !important;
+  color: #fff !important;
+  width: 18px !important;
+}
+
 /* 空状态 */
 .empty-state {
   flex: 1;

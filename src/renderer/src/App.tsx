@@ -43,7 +43,8 @@ export default function App() {
                 const clampedHeight = Math.max(100, Math.min(500, newHeight))
                 setTerminalHeight(clampedHeight)
             } else if (resizeTarget.current === 'scriptList') {
-                const newWidth = e.clientX - 200 // 减去 Sidebar 宽度 (200px)
+                const sidebarWidth = isCategoryCollapsed ? 60 : 200
+                const newWidth = e.clientX - sidebarWidth // 减去 Sidebar 宽度
                 // 限制列表宽度: 最小 200，最大 600
                 const clampedWidth = Math.max(200, Math.min(600, newWidth))
                 setScriptListWidth(clampedWidth)

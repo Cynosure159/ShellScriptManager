@@ -21,7 +21,7 @@ declare global {
       exportData: () => Promise<{ success: boolean; path?: string; error?: string }>
       importData: () => Promise<{ success: boolean; error?: string }>
       importScriptFile: (categoryId: string) => Promise<Script | null>
-      saveTerminalOutput: (content: string) => Promise<{ success: boolean; path?: string; error?: string }>
+      saveTerminalOutput: (content: string, suggestedName?: string) => Promise<{ success: boolean; path?: string; error?: string }>
       // Config & System
       getConfig: (key: string) => Promise<any>
       setConfig: (key: string, value: any) => Promise<void>
