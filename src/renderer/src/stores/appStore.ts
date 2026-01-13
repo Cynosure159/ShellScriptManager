@@ -47,6 +47,7 @@ interface AppState {
 
   // 配置状态
   defaultWorkDir: string
+  wordWrap: boolean
   
   // 操作
   loadData: () => Promise<void>
@@ -77,6 +78,7 @@ interface AppState {
   // 配置操作
   fetchConfig: () => Promise<void>
   updateDefaultWorkDir: (path: string) => Promise<void>
+  toggleWordWrap: () => Promise<void>
   reorderScripts: (categoryId: string, sourceIndex: number, destinationIndex: number) => Promise<void>
   reorderCategories: (sourceIndex: number, destinationIndex: number) => Promise<void>
 }
@@ -91,6 +93,7 @@ export const useAppStore = create<AppState>((set, get) => ({
   runningScriptId: null,
   terminalOutput: '',
   defaultWorkDir: '',
+  wordWrap: false,
 
   // 加载数据
   loadData: async () => {
@@ -129,12 +132,19 @@ export const useAppStore = create<AppState>((set, get) => ({
 
   fetchConfig: async () => {
     const defaultWorkDir = await window.api.getConfig('defaultWorkDir') || ''
-    set({ defaultWorkDir })
+    const wordWrap = await window.api.getConfig('wordWrap') || false
+    set({ defaultWorkDir, wordWrap })
   },
 
   updateDefaultWorkDir: async (path) => {
     await window.api.setConfig('defaultWorkDir', path)
     set({ defaultWorkDir: path })
+  },
+
+  toggleWordWrap: async () => {
+    const newValue = !get().wordWrap
+    await window.api.setConfig('wordWrap', newValue)
+    set({ wordWrap: newValue })
   },
 
   // 选择分类
