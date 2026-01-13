@@ -2,10 +2,14 @@ import { ActionIcon } from '@mantine/core'
 import { DragDropContext, Droppable, Draggable, DropResult } from '@hello-pangea/dnd'
 import { useAppStore } from '../../stores/appStore'
 
+interface ScriptListProps {
+    width?: number
+}
+
 /**
  * 脚本列表组件
  */
-export default function ScriptList() {
+export default function ScriptList({ width }: ScriptListProps) {
     const {
         scripts,
         selectedCategoryId,
@@ -40,7 +44,7 @@ export default function ScriptList() {
     }
 
     return (
-        <div className="script-list-panel">
+        <div className="script-list-panel" style={width ? { width, minWidth: width } : undefined}>
             <div className="script-list-header">
                 <span className="script-list-title">脚本</span>
                 <ActionIcon
