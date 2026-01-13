@@ -6,12 +6,20 @@ import { oneDark } from '@codemirror/theme-one-dark'
 import { useAppStore } from '../../stores/appStore'
 import type { ScriptType } from '../../types'
 
-// 脚本类型选项
-const scriptTypeOptions = [
-    { value: 'batch', label: 'Batch (cmd)' },
-    // { value: 'powershell', label: 'PowerShell' },  // 后续可启用
-    // { value: 'bash', label: 'Bash' },              // 后续可启用
-]
+// 根据平台生成脚本类型选项
+const getScriptTypeOptions = () => {
+    const isWindows = window.api.platform === 'win32'
+    if (isWindows) {
+        return [
+            { value: 'batch', label: 'Batch (cmd)' },
+            { value: 'powershell', label: 'PowerShell' },
+        ]
+    } else {
+        return [
+            { value: 'bash', label: 'Bash' },
+        ]
+    }
+}
 
 /**
  * 脚本编辑器组件
@@ -107,7 +115,7 @@ export default function ScriptEditor() {
                 <Select
                     size="xs"
                     style={{ width: 120 }}
-                    data={scriptTypeOptions}
+                    data={getScriptTypeOptions()}
                     value={editingScript.scriptType || 'batch'}
                     onChange={(value) => value && updateEditingScript({ scriptType: value as ScriptType })}
                 />

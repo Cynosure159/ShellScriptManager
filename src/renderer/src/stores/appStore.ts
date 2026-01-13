@@ -166,8 +166,6 @@ export const useAppStore = create<AppState>((set, get) => ({
 
   // 更新分类
   updateCategory: async (id, name) => {
-    // 兼容代码：为了不破坏现有逻辑，这里 updateCategory 依然只接受 name 字符串
-    // 但底层 API 已经支持对象。我们这里构造对象。
     await window.api.updateCategory(id, { name })
     await get().loadData()
   },

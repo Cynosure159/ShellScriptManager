@@ -73,8 +73,8 @@ export function registerIpcHandlers(): void {
     return getScript(id)
   })
 
-  ipcMain.handle('add-script', (_, categoryId: string, name: string, description: string, content: string, scriptType: any) => {
-    return addScript(categoryId, name, description, content, scriptType)
+  ipcMain.handle('add-script', (_, categoryId: string, name: string, description: string, content: string, scriptType: string) => {
+    return addScript(categoryId, name, description, content, scriptType as any)
   })
 
   ipcMain.handle('update-script', (_, id: string, updates: object) => {
