@@ -45,8 +45,8 @@ const api = {
   importScriptFile: (categoryId: string): Promise<Script | null> =>
     ipcRenderer.invoke('import-script-file', categoryId),
 
-  saveTerminalOutput: (content: string): Promise<{ success: boolean; path?: string; error?: string }> =>
-    ipcRenderer.invoke('save-terminal-output', content),
+  saveTerminalOutput: (content: string, suggestedName?: string): Promise<{ success: boolean; path?: string; error?: string }> =>
+    ipcRenderer.invoke('save-terminal-output', content, suggestedName),
     
   // ==================== 全局配置 & 系统 ====================
   getConfig: (key: string): Promise<any> => ipcRenderer.invoke('get-config', key),

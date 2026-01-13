@@ -49,8 +49,8 @@ It integrates the CodeMirror 6 editor and xterm.js terminal, supporting Windows 
 
 - [x] **Editor**: Add Word Wrap toggle
 - [ ] **Logs**: Improved log system & export
-- [ ] **Terminal**: Export terminal output to file
-- [ ] **Import**: Support importing single script files (.sh/.bat/.ps1)
+- [x] **Terminal**: Export terminal output to file
+- [x] **Import**: Support importing single script files (.sh/.bat/.ps1)
 - [x] **UI**: Resizable sidebar width, Collapsible sidebar
 - [ ] **CI/CD**: GitHub Actions integration
 - [ ] **i18n**: Multi-language support

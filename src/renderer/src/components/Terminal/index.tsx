@@ -125,7 +125,7 @@ export default function Terminal({ height = 200 }: TerminalProps) {
     const handleSaveLog = async () => {
         const output = useAppStore.getState().terminalOutput
         if (!output) return
-        await window.api.saveTerminalOutput(output)
+        await window.api.saveTerminalOutput(output, editingScript?.name)
     }
 
     return (

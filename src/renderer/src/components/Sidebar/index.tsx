@@ -87,26 +87,11 @@ export default function Sidebar({ isCollapsed, onToggleCollapse }: SidebarProps)
     const customCategories = categories.filter(c => c.id !== 'default')
 
     return (
-        <div className={`sidebar ${isCollapsed ? 'collapsed' : ''}`} style={{ width: isCollapsed ? 60 : 200, minWidth: isCollapsed ? 60 : 200 }}>
-            <div className="sidebar-header" style={{ justifyContent: isCollapsed ? 'center' : 'space-between', padding: isCollapsed ? '16px 0' : '16px' }}>
-                {!isCollapsed && <span className="sidebar-title">分类</span>}
-                <ActionIcon
-                    variant="subtle"
-                    color="gray"
-                    size="sm"
-                    onClick={onToggleCollapse}
-                    title={isCollapsed ? "展开侧边栏" : "折叠侧边栏"}
-                >
-                    {isCollapsed ? (
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                            <polyline points="9 18 15 12 9 6" />
-                        </svg>
-                    ) : (
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                            <polyline points="15 18 9 12 15 6" />
-                        </svg>
-                    )}
-                </ActionIcon>
+        <div className={`sidebar ${isCollapsed ? 'collapsed' : ''}`} style={{ width: isCollapsed ? 60 : 200, minWidth: isCollapsed ? 60 : 200, position: 'relative' }}>
+            <div className="sidebar-header" style={{ justifyContent: 'space-between', padding: isCollapsed ? '16px 0' : '16px' }}>
+                <span className="sidebar-title" style={{ display: isCollapsed ? 'none' : 'block' }}>分类</span>
+                {isCollapsed && <span className="sidebar-title" style={{ width: '100%', textAlign: 'center', fontSize: '12px' }}>分类</span>}
+
                 {!isCollapsed && (
                     <ActionIcon
                         variant="subtle"
@@ -134,7 +119,7 @@ export default function Sidebar({ isCollapsed, onToggleCollapse }: SidebarProps)
                     >
                         <span className="category-name" style={{ display: isCollapsed ? 'none' : 'block' }}>{defaultCategory.name}</span>
                         {isCollapsed ? (
-                            <span style={{ fontSize: '16px' }}>📁</span>
+                            <span style={{ fontSize: '14px', fontWeight: 600 }}>{defaultCategory.name.charAt(0).toUpperCase()}</span>
                         ) : (
                             <span className="category-count">{getScriptCount(defaultCategory.id)}</span>
                         )}
@@ -167,7 +152,7 @@ export default function Sidebar({ isCollapsed, onToggleCollapse }: SidebarProps)
                                             >
                                                 <span className="category-name" style={{ display: isCollapsed ? 'none' : 'block' }}>{category.name}</span>
                                                 {isCollapsed ? (
-                                                    <span style={{ fontSize: '16px' }}>📁</span>
+                                                    <span style={{ fontSize: '14px', fontWeight: 600 }}>{category.name.charAt(0).toUpperCase()}</span>
                                                 ) : (
                                                     <span className="category-count">{getScriptCount(category.id)}</span>
                                                 )}
@@ -243,6 +228,44 @@ export default function Sidebar({ isCollapsed, onToggleCollapse }: SidebarProps)
                         "全局设置"
                     )}
                 </Button>
+            </div>
+
+            {/* 折叠/展开按钮 - 贴着边线的左半圆 */}
+            <div
+                onClick={onToggleCollapse}
+                style={{
+                    position: 'absolute',
+                    top: '50%',
+                    right: '0',
+                    transform: 'translateY(-50%)',
+                    zIndex: 100,
+                    width: '16px',
+                    height: '32px',
+                    backgroundColor: '#2c2e33',
+                    borderRadius: '32px 0 0 32px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'flex-start',
+                    paddingLeft: '2px',
+                    cursor: 'pointer',
+                    border: '1px solid #3d3f47',
+                    borderRight: 'none',
+                    color: '#909296',
+                    transition: 'all 0.2s',
+                    boxShadow: '-2px 0 4px rgba(0,0,0,0.1)'
+                }}
+                className="collapse-handle"
+                title={isCollapsed ? "展开侧边栏" : "折叠侧边栏"}
+            >
+                {isCollapsed ? (
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3">
+                        <polyline points="9 18 15 12 9 6" />
+                    </svg>
+                ) : (
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3">
+                        <polyline points="15 18 9 12 15 6" />
+                    </svg>
+                )}
             </div>
 
             {/* 当 Modal 和 SettingsModal 渲染... */}
