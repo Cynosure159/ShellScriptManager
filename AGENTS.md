@@ -103,6 +103,7 @@ npm run build:win   # 构建 Windows 安装包
 - **快捷键**: 增加了常用操作快捷键 (Ctrl+R 运行, Ctrl+S 保存)，并在按钮 Tooltip 中显示提示。
 - **打包优化**: 优化了各平台（Windows, macOS, Linux）的打包配置，增加了便携版支持和更规范的安装流程。
 - **CI/CD**: 配置了 GitHub Actions 自动化工作流，支持多平台构建测试和自动发布。
+- **构建优化**: 集成了 `afterPack` 钩子，自动清理不必要的语言文件（只保留中文和英文），减小安装包体积。
 
 ## 优化建议 (待办)
 1. **各种 Shell 支持**: 增加对 Git Bash 或 WSL 的自动探测和支持。

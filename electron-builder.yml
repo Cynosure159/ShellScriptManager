@@ -13,6 +13,7 @@ files:
 asar: true
 asarUnpack:
   - resources/**
+afterPack: ./removeLocales.js
 win:
   executableName: ShellScriptManager
   icon: build/icon.png
