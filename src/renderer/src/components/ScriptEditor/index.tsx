@@ -41,6 +41,38 @@ export default function ScriptEditor() {
     const editorRef = useRef<HTMLDivElement>(null)
     const editorViewRef = useRef<EditorView | null>(null)
 
+    // 注册快捷键
+    useEffect(() => {
+        const handleKeyDown = (e: KeyboardEvent) => {
+            // 只在有编辑脚本时响应
+            if (!editingScript) return
+
+            // 获取组合键状态
+            const isCtrlOrCmd = e.ctrlKey || e.metaKey
+
+            // Ctrl+S: 保存
+            if (isCtrlOrCmd && e.key === 's') {
+                e.preventDefault()
+                // 如果已修改，则执行保存
+                if (useAppStore.getState().isScriptModified) {
+                    saveScript()
+                }
+            }
+
+            // Ctrl+R: 运行
+            if (isCtrlOrCmd && e.key === 'r') {
+                e.preventDefault()
+                // 如果当前没在运行，则运行
+                if (!useAppStore.getState().runningScriptId) {
+                    runScript()
+                }
+            }
+        }
+
+        window.addEventListener('keydown', handleKeyDown)
+        return () => window.removeEventListener('keydown', handleKeyDown)
+    }, [editingScript?.id, saveScript, runScript])
+
     // 初始化 CodeMirror 编辑器
     useEffect(() => {
         if (!editorRef.current) return
@@ -132,14 +164,16 @@ export default function ScriptEditor() {
 
                     {/* 主要操作按钮：保存、运行 */}
                     <div className="editor-actions">
-                        <Button
-                            size="xs"
-                            variant="subtle"
-                            disabled={!isScriptModified}
-                            onClick={() => saveScript()}
-                        >
-                            保存
-                        </Button>
+                        <Tooltip label="保存脚本 (Ctrl+S)" position="bottom" withArrow>
+                            <Button
+                                size="xs"
+                                variant="subtle"
+                                disabled={!isScriptModified}
+                                onClick={() => saveScript()}
+                            >
+                                保存
+                            </Button>
+                        </Tooltip>
                         {isRunning ? (
                             <Button
                                 size="xs"
@@ -149,13 +183,15 @@ export default function ScriptEditor() {
                                 停止
                             </Button>
                         ) : (
-                            <Button
-                                size="xs"
-                                color="violet"
-                                onClick={() => runScript()}
-                            >
-                                运行
-                            </Button>
+                            <Tooltip label="运行脚本 (Ctrl+R)" position="bottom" withArrow>
+                                <Button
+                                    size="xs"
+                                    color="violet"
+                                    onClick={() => runScript()}
+                                >
+                                    运行
+                                </Button>
+                            </Tooltip>
                         )}
                     </div>
                 </Group>
