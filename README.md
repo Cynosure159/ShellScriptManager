@@ -43,6 +43,17 @@ It integrates the CodeMirror 6 editor and xterm.js terminal, supporting Windows 
   - **Categorization**: Organize scripts into custom categories.
   - **Data Safety**: Import/Export data via JSON for backup.
   - **Local Persistence**: Lightweight local storage using `electron-store`.
+  - **Drag & Drop**: Reorder scripts and categories via drag and drop.
+
+## 🗺️ Roadmap
+
+- [ ] **Editor**: Add Word Wrap toggle
+- [ ] **Logs**: Improved log system & export
+- [ ] **Terminal**: Export terminal output to file
+- [ ] **Import**: Support importing single script files (.sh/.bat/.ps1)
+- [ ] **UI**: Resizable sidebar width
+- [ ] **CI/CD**: GitHub Actions integration
+- [ ] **i18n**: Multi-language support
 
 ## 📸 Screenshots
 
