@@ -6,7 +6,9 @@
   padding: 0;
 }
 
-html, body, #root {
+html,
+body,
+#root {
   height: 100%;
   overflow: hidden;
 }
@@ -44,12 +46,12 @@ body {
 
 /* 侧边栏 */
 .sidebar {
-  width: 200px;
-  min-width: 200px;
   background-color: #1a1b1e;
   border-right: 1px solid #2c2e33;
   display: flex;
   flex-direction: column;
+  transition: width 0.3s ease, min-width 0.3s ease;
+  overflow: hidden;
 }
 
 .sidebar-header {

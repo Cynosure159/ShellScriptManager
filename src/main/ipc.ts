@@ -250,4 +250,60 @@ export function registerIpcHandlers(): void {
       return { success: false, error: String(error) }
     }
   })
+
+  ipcMain.handle('import-script-file', async (_, categoryId: string) => {
+    const result = await dialog.showOpenDialog({
+      title: '导入脚本文件',
+      filters: [
+        { name: '脚本文件', extensions: ['sh', 'bat', 'ps1'] },
+        { name: '所有文件', extensions: ['*'] }
+      ],
+      properties: ['openFile']
+    })
+
+    if (result.canceled || result.filePaths.length === 0) {
+      return null
+    }
+
+    const filePath = result.filePaths[0]
+    const ext = path.extname(filePath).toLowerCase()
+    const fileName = path.basename(filePath, ext)
+    
+    let scriptType = 'bash'
+    if (ext === '.bat' || ext === '.cmd') {
+      scriptType = 'batch'
+    } else if (ext === '.ps1') {
+      scriptType = 'powershell'
+    }
+
+    try {
+      const content = fs.readFileSync(filePath, 'utf-8')
+      return addScript(categoryId, fileName, '从文件导入', content, scriptType as any)
+    } catch (error) {
+      console.error('Failed to import script file:', error)
+      return null
+    }
+  })
+
+  ipcMain.handle('save-terminal-output', async (_, content: string) => {
+    const result = await dialog.showSaveDialog({
+      title: '保存终端输出',
+      defaultPath: 'terminal-output.log',
+      filters: [
+        { name: 'Log Files', extensions: ['log', 'txt'] },
+        { name: 'All Files', extensions: ['*'] }
+      ]
+    })
+
+    if (result.canceled || !result.filePath) {
+      return { success: false }
+    }
+
+    try {
+      fs.writeFileSync(result.filePath, content, 'utf-8')
+      return { success: true, path: result.filePath }
+    } catch (error) {
+      return { success: false, error: String(error) }
+    }
+  })
 }

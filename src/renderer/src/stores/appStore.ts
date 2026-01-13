@@ -20,6 +20,8 @@ declare global {
       onScriptOutput: (callback: (scriptId: string, output: string) => void) => () => void
       exportData: () => Promise<{ success: boolean; path?: string; error?: string }>
       importData: () => Promise<{ success: boolean; error?: string }>
+      importScriptFile: (categoryId: string) => Promise<Script | null>
+      saveTerminalOutput: (content: string) => Promise<{ success: boolean; path?: string; error?: string }>
       // Config & System
       getConfig: (key: string) => Promise<any>
       setConfig: (key: string, value: any) => Promise<void>
@@ -61,6 +63,7 @@ interface AppState {
   
   // 脚本操作
   addScript: () => Promise<void>
+  importScript: () => Promise<void>
   updateEditingScript: (updates: Partial<Script>) => void
   saveScript: () => Promise<void>
   deleteScript: (id: string) => Promise<void>
@@ -251,7 +254,43 @@ export const useAppStore = create<AppState>((set, get) => ({
 
     set((state) => ({
       scripts: [...state.scripts, script],
-      editingScript: script
+      editingScript: script,
+      selectedScriptId: script.id,
+      isScriptModified: false
+    }))
+  },
+
+  importScript: async () => {
+    const categoryId = get().selectedCategoryId || 'default'
+    
+    const script = await window.api.importScriptFile(categoryId)
+    if (!script) return
+
+    // 获取全局默认运行目录
+    const defaultWorkDir = get().defaultWorkDir
+    
+    // 设置顺序 (放在最后)
+    const categoryScripts = get().scripts.filter(s => s.categoryId === categoryId)
+    const maxOrder = categoryScripts.length > 0 
+        ? Math.max(...categoryScripts.map(s => s.order ?? 0)) 
+        : -1
+    
+    const newOrder = maxOrder + 1
+    const updates: Partial<Script> = { order: newOrder }
+
+    if (defaultWorkDir) {
+       updates.workDir = defaultWorkDir
+    }
+    
+    await window.api.updateScript(script.id, updates)
+    script.order = newOrder
+    if (defaultWorkDir) script.workDir = defaultWorkDir
+
+    set((state) => ({
+      scripts: [...state.scripts, script],
+      editingScript: script,
+      selectedScriptId: script.id,
+      isScriptModified: false
     }))
   },
 

@@ -4,10 +4,15 @@ import { DragDropContext, Droppable, Draggable, DropResult } from '@hello-pangea
 import { useAppStore } from '../../stores/appStore'
 import SettingsModal from '../SettingsModal'
 
+interface SidebarProps {
+    isCollapsed: boolean
+    onToggleCollapse: () => void
+}
+
 /**
  * 分类侧边栏组件
  */
-export default function Sidebar() {
+export default function Sidebar({ isCollapsed, onToggleCollapse }: SidebarProps) {
     const {
         categories,
         scripts,
@@ -82,21 +87,40 @@ export default function Sidebar() {
     const customCategories = categories.filter(c => c.id !== 'default')
 
     return (
-        <div className="sidebar">
-            <div className="sidebar-header">
-                <span className="sidebar-title">分类</span>
+        <div className={`sidebar ${isCollapsed ? 'collapsed' : ''}`} style={{ width: isCollapsed ? 60 : 200, minWidth: isCollapsed ? 60 : 200 }}>
+            <div className="sidebar-header" style={{ justifyContent: isCollapsed ? 'center' : 'space-between', padding: isCollapsed ? '16px 0' : '16px' }}>
+                {!isCollapsed && <span className="sidebar-title">分类</span>}
                 <ActionIcon
                     variant="subtle"
-                    color="violet"
+                    color="gray"
                     size="sm"
-                    onClick={() => setIsAddModalOpen(true)}
-                    title="添加分类"
+                    onClick={onToggleCollapse}
+                    title={isCollapsed ? "展开侧边栏" : "折叠侧边栏"}
                 >
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                        <line x1="12" y1="5" x2="12" y2="19" />
-                        <line x1="5" y1="12" x2="19" y2="12" />
-                    </svg>
+                    {isCollapsed ? (
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                            <polyline points="9 18 15 12 9 6" />
+                        </svg>
+                    ) : (
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                            <polyline points="15 18 9 12 15 6" />
+                        </svg>
+                    )}
                 </ActionIcon>
+                {!isCollapsed && (
+                    <ActionIcon
+                        variant="subtle"
+                        color="violet"
+                        size="sm"
+                        onClick={() => setIsAddModalOpen(true)}
+                        title="添加分类"
+                    >
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                            <line x1="12" y1="5" x2="12" y2="19" />
+                            <line x1="5" y1="12" x2="19" y2="12" />
+                        </svg>
+                    </ActionIcon>
+                )}
             </div>
 
             <div className="category-list">
@@ -105,9 +129,15 @@ export default function Sidebar() {
                         key={defaultCategory.id}
                         className={`category-item ${selectedCategoryId === defaultCategory.id ? 'active' : ''}`}
                         onClick={() => selectCategory(defaultCategory.id)}
+                        title={isCollapsed ? defaultCategory.name : undefined}
+                        style={{ justifyContent: isCollapsed ? 'center' : 'space-between' }}
                     >
-                        <span className="category-name">{defaultCategory.name}</span>
-                        <span className="category-count">{getScriptCount(defaultCategory.id)}</span>
+                        <span className="category-name" style={{ display: isCollapsed ? 'none' : 'block' }}>{defaultCategory.name}</span>
+                        {isCollapsed ? (
+                            <span style={{ fontSize: '16px' }}>📁</span>
+                        ) : (
+                            <span className="category-count">{getScriptCount(defaultCategory.id)}</span>
+                        )}
                     </div>
                 )}
 
@@ -127,14 +157,20 @@ export default function Sidebar() {
                                                 {...provided.dragHandleProps}
                                                 style={{
                                                     ...provided.draggableProps.style,
-                                                    opacity: snapshot.isDragging ? 0.8 : 1
+                                                    opacity: snapshot.isDragging ? 0.8 : 1,
+                                                    justifyContent: isCollapsed ? 'center' : 'space-between'
                                                 }}
                                                 className={`category-item ${selectedCategoryId === category.id ? 'active' : ''} ${snapshot.isDragging ? 'dragging' : ''}`}
                                                 onClick={() => selectCategory(category.id)}
-                                                onDoubleClick={() => openEditModal(category)}
+                                                onDoubleClick={() => !isCollapsed && openEditModal(category)}
+                                                title={isCollapsed ? category.name : undefined}
                                             >
-                                                <span className="category-name">{category.name}</span>
-                                                <span className="category-count">{getScriptCount(category.id)}</span>
+                                                <span className="category-name" style={{ display: isCollapsed ? 'none' : 'block' }}>{category.name}</span>
+                                                {isCollapsed ? (
+                                                    <span style={{ fontSize: '16px' }}>📁</span>
+                                                ) : (
+                                                    <span className="category-count">{getScriptCount(category.id)}</span>
+                                                )}
                                             </div>
                                         )}
                                     </Draggable>
@@ -147,51 +183,65 @@ export default function Sidebar() {
             </div>
 
             {/* 底部操作按钮 */}
-            <div style={{ padding: '12px', borderTop: '1px solid #2c2e33' }}>
-                <Group gap="xs" mb="xs">
-                    <Button
-                        variant="subtle"
-                        color="gray"
-                        size="xs"
-                        style={{ flex: 1 }}
-                        onClick={async () => {
-                            const result = await importData()
-                            if (result.success) {
-                                alert('导入成功')
-                            }
-                        }}
-                    >
-                        导入
-                    </Button>
-                    <Button
-                        variant="subtle"
-                        color="gray"
-                        size="xs"
-                        style={{ flex: 1 }}
-                        onClick={async () => {
-                            const result = await exportData()
-                            if (result.success) {
-                                alert('导出成功')
-                            }
-                        }}
-                    >
-                        导出
-                    </Button>
-                </Group>
+            <div style={{ padding: '12px', borderTop: '1px solid #2c2e33', display: 'flex', flexDirection: 'column', gap: '8px', alignItems: 'center' }}>
+                {!isCollapsed && (
+                    <Group gap="xs" style={{ width: '100%' }}>
+                        <Button
+                            variant="subtle"
+                            color="gray"
+                            size="xs"
+                            style={{ flex: 1 }}
+                            onClick={async () => {
+                                const result = await importData()
+                                if (result.success) {
+                                    alert('导入成功')
+                                }
+                            }}
+                        >
+                            导入
+                        </Button>
+                        <Button
+                            variant="subtle"
+                            color="gray"
+                            size="xs"
+                            style={{ flex: 1 }}
+                            onClick={async () => {
+                                const result = await exportData()
+                                if (result.success) {
+                                    alert('导出成功')
+                                }
+                            }}
+                        >
+                            导出
+                        </Button>
+                    </Group>
+                )}
+
                 <Button
                     variant="light"
                     color="gray"
                     size="xs"
-                    fullWidth
+                    fullWidth={!isCollapsed}
+                    style={{ width: isCollapsed ? '32px' : '100%', padding: isCollapsed ? 0 : undefined }}
                     leftSection={
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                        !isCollapsed && (
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                <circle cx="12" cy="12" r="3"></circle>
+                                <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+                            </svg>
+                        )
+                    }
+                    onClick={() => setIsSettingsOpen(true)}
+                    title={isCollapsed ? "全局设置" : undefined}
+                >
+                    {isCollapsed ? (
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                             <circle cx="12" cy="12" r="3"></circle>
                             <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
                         </svg>
-                    }
-                    onClick={() => setIsSettingsOpen(true)}
-                >
-                    全局设置
+                    ) : (
+                        "全局设置"
+                    )}
                 </Button>
             </div>
 
