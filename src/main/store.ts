@@ -72,11 +72,14 @@ export function addCategory(name: string): Category {
 /**
  * 更新分类
  */
-export function updateCategory(id: string, name: string): Category | null {
+export function updateCategory(id: string, updates: Partial<Omit<Category, 'id'>>): Category | null {
   const categories = getCategories()
   const index = categories.findIndex(c => c.id === id)
   if (index === -1) return null
-  categories[index].name = name
+  categories[index] = {
+    ...categories[index],
+    ...updates
+  }
   store.set('categories', categories)
   return categories[index]
 }
@@ -170,14 +173,21 @@ export function deleteScript(id: string): boolean {
   return true
 }
 
+// ==================== 全局配置 ====================
+
+export function getConfig(key: string): any {
+  return store.get(`config.${key}`)
+}
+
+export function setConfig(key: string, value: any): void {
+  store.set(`config.${key}`, value)
+}
+
 /**
  * 导出所有数据
  */
-export function exportData(): AppData {
-  return {
-    categories: getCategories(),
-    scripts: getScripts()
-  }
+export function exportData(): object {
+  return store.store
 }
 
 /**

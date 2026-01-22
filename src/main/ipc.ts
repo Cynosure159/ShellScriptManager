@@ -21,6 +21,27 @@ import {
 const runningProcesses = new Map<string, ChildProcess>()
 
 /**
+ * 清理临时目录中的残留脚本文件
+ */
+export function cleanupTempFiles(): void {
+  try {
+    const tmpDir = os.tmpdir()
+    const files = fs.readdirSync(tmpDir)
+    const scriptFiles = files.filter((f) => f.startsWith('script_') && (f.endsWith('.bat') || f.endsWith('.ps1') || f.endsWith('.sh')))
+    
+    for (const file of scriptFiles) {
+      try {
+        fs.unlinkSync(path.join(tmpDir, file))
+      } catch {
+        // 忽略单个文件删除错误（可能正在被另一个实例运行）
+      }
+    }
+  } catch (error) {
+    console.error('Failed to cleanup temp files:', error)
+  }
+}
+
+/**
  * 注册所有 IPC 处理器
  */
 export function registerIpcHandlers(): void {
@@ -34,8 +55,8 @@ export function registerIpcHandlers(): void {
     return addCategory(name)
   })
 
-  ipcMain.handle('update-category', (_, id: string, name: string) => {
-    return updateCategory(id, name)
+  ipcMain.handle('update-category', (_, id: string, updates: any) => {
+    return updateCategory(id, updates)
   })
 
   ipcMain.handle('delete-category', (_, id: string) => {
@@ -52,8 +73,8 @@ export function registerIpcHandlers(): void {
     return getScript(id)
   })
 
-  ipcMain.handle('add-script', (_, categoryId: string, name: string, description: string, content: string, scriptType: any) => {
-    return addScript(categoryId, name, description, content, scriptType)
+  ipcMain.handle('add-script', (_, categoryId: string, name: string, description: string, content: string, scriptType: string) => {
+    return addScript(categoryId, name, description, content, scriptType as any)
   })
 
   ipcMain.handle('update-script', (_, id: string, updates: object) => {
@@ -66,7 +87,29 @@ export function registerIpcHandlers(): void {
 
   // ==================== 脚本执行 ====================
 
-  ipcMain.handle('run-script', (event, scriptId: string, content: string, scriptType: string) => {
+  // ==================== 全局配置 & 系统 ====================
+  
+  ipcMain.handle('get-config', (_, key: string) => {
+    return import('./store').then(m => m.getConfig(key))
+  })
+
+  ipcMain.handle('set-config', (_, key: string, value: any) => {
+    return import('./store').then(m => m.setConfig(key, value))
+  })
+
+  ipcMain.handle('select-directory', async () => {
+    const result = await dialog.showOpenDialog({
+      properties: ['openDirectory']
+    })
+    if (result.canceled || result.filePaths.length === 0) {
+      return null
+    }
+    return result.filePaths[0]
+  })
+
+  // ==================== 脚本执行 ====================
+
+  ipcMain.handle('run-script', (event, scriptId: string, content: string, scriptType: string, workDir?: string) => {
     return new Promise((resolve) => {
       const tmpDir = os.tmpdir()
       const isWindows = process.platform === 'win32'
@@ -109,8 +152,11 @@ export function registerIpcHandlers(): void {
       }
 
       // 启动脚本进程
+      // 优先使用传入的 workDir, 其次是 Global Config (渲染进程传参时已处理), 再次是 homedir
+      const cwd = workDir && fs.existsSync(workDir) ? workDir : os.homedir()
+
       const child = spawn(shell, args, {
-        cwd: os.homedir(),
+        cwd: cwd,
         env: {
           ...process.env,
           LANG: 'en_US.UTF-8',
@@ -200,6 +246,63 @@ export function registerIpcHandlers(): void {
       const data = JSON.parse(content)
       const success = importData(data)
       return { success }
+    } catch (error) {
+      return { success: false, error: String(error) }
+    }
+  })
+
+  ipcMain.handle('import-script-file', async (_, categoryId: string) => {
+    const result = await dialog.showOpenDialog({
+      title: '导入脚本文件',
+      filters: [
+        { name: '脚本文件', extensions: ['sh', 'bat', 'ps1'] },
+        { name: '所有文件', extensions: ['*'] }
+      ],
+      properties: ['openFile']
+    })
+
+    if (result.canceled || result.filePaths.length === 0) {
+      return null
+    }
+
+    const filePath = result.filePaths[0]
+    const ext = path.extname(filePath).toLowerCase()
+    const fileName = path.basename(filePath, ext)
+    
+    let scriptType = 'bash'
+    if (ext === '.bat' || ext === '.cmd') {
+      scriptType = 'batch'
+    } else if (ext === '.ps1') {
+      scriptType = 'powershell'
+    }
+
+    try {
+      const content = fs.readFileSync(filePath, 'utf-8')
+      return addScript(categoryId, fileName, '从文件导入', content, scriptType as any)
+    } catch (error) {
+      console.error('Failed to import script file:', error)
+      return null
+    }
+  })
+
+  ipcMain.handle('save-terminal-output', async (_, content: string, suggestedName?: string) => {
+    const defaultFileName = suggestedName ? `${suggestedName}-output.log` : 'terminal-output.log'
+    const result = await dialog.showSaveDialog({
+      title: '保存终端输出',
+      defaultPath: defaultFileName,
+      filters: [
+        { name: 'Log Files', extensions: ['log', 'txt'] },
+        { name: 'All Files', extensions: ['*'] }
+      ]
+    })
+
+    if (result.canceled || !result.filePath) {
+      return { success: false }
+    }
+
+    try {
+      fs.writeFileSync(result.filePath, content, 'utf-8')
+      return { success: true, path: result.filePath }
     } catch (error) {
       return { success: false, error: String(error) }
     }

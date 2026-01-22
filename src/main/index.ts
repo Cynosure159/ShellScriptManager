@@ -1,7 +1,7 @@
 import { app, shell, BrowserWindow } from 'electron'
 import { join } from 'path'
 import { electronApp, optimizer, is } from '@electron-toolkit/utils'
-import { registerIpcHandlers } from './ipc'
+import { registerIpcHandlers, cleanupTempFiles } from './ipc'
 import icon from '../../resources/icon.png?asset'
 
 /**
@@ -16,7 +16,7 @@ function createWindow(): void {
     show: false,
     autoHideMenuBar: true,
     backgroundColor: '#1a1b1e', // 暗色背景
-    ...(process.platform === 'linux' ? { icon } : {}),
+    icon,
     webPreferences: {
       preload: join(__dirname, '../preload/index.js'),
       sandbox: false
@@ -50,12 +50,20 @@ app.whenReady().then(() => {
 
   // 注册 IPC 处理器
   registerIpcHandlers()
+  
+  // 启动时清理
+  cleanupTempFiles()
 
   createWindow()
 
   app.on('activate', function () {
     if (BrowserWindow.getAllWindows().length === 0) createWindow()
   })
+})
+
+// 退出前清理
+app.on('will-quit', () => {
+  cleanupTempFiles()
 })
 
 // 所有窗口关闭时退出应用（macOS 除外）

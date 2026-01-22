@@ -12,8 +12,8 @@ const api = {
   // ==================== 分类相关 ====================
   getCategories: (): Promise<Category[]> => ipcRenderer.invoke('get-categories'),
   addCategory: (name: string): Promise<Category> => ipcRenderer.invoke('add-category', name),
-  updateCategory: (id: string, name: string): Promise<Category | null> => 
-    ipcRenderer.invoke('update-category', id, name),
+  updateCategory: (id: string, updates: string | Partial<Category>): Promise<Category | null> => 
+    ipcRenderer.invoke('update-category', id, updates),
   deleteCategory: (id: string): Promise<boolean> => ipcRenderer.invoke('delete-category', id),
 
   // ==================== 脚本相关 ====================
@@ -26,8 +26,8 @@ const api = {
   deleteScript: (id: string): Promise<boolean> => ipcRenderer.invoke('delete-script', id),
 
   // ==================== 脚本执行 ====================
-  runScript: (scriptId: string, content: string, scriptType: string): Promise<ScriptExecutionResult> =>
-    ipcRenderer.invoke('run-script', scriptId, content, scriptType),
+  runScript: (scriptId: string, content: string, scriptType: string, workDir?: string): Promise<ScriptExecutionResult> =>
+    ipcRenderer.invoke('run-script', scriptId, content, scriptType, workDir),
   stopScript: (scriptId: string): Promise<boolean> => ipcRenderer.invoke('stop-script', scriptId),
   onScriptOutput: (callback: (scriptId: string, output: string) => void) => {
     const handler = (_: Electron.IpcRendererEvent, scriptId: string, output: string) => {
@@ -41,7 +41,17 @@ const api = {
   exportData: (): Promise<{ success: boolean; path?: string; error?: string }> =>
     ipcRenderer.invoke('export-data'),
   importData: (): Promise<{ success: boolean; error?: string }> =>
-    ipcRenderer.invoke('import-data')
+    ipcRenderer.invoke('import-data'),
+  importScriptFile: (categoryId: string): Promise<Script | null> =>
+    ipcRenderer.invoke('import-script-file', categoryId),
+
+  saveTerminalOutput: (content: string, suggestedName?: string): Promise<{ success: boolean; path?: string; error?: string }> =>
+    ipcRenderer.invoke('save-terminal-output', content, suggestedName),
+    
+  // ==================== 全局配置 & 系统 ====================
+  getConfig: (key: string): Promise<any> => ipcRenderer.invoke('get-config', key),
+  setConfig: (key: string, value: any): Promise<void> => ipcRenderer.invoke('set-config', key, value),
+  selectDirectory: (): Promise<string | null> => ipcRenderer.invoke('select-directory')
 }
 
 // 暴露 API 给渲染进程
