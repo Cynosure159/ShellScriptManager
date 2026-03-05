@@ -18,7 +18,10 @@
     "build:mac:x64": "npm run build && electron-builder --mac --x64",
     "build:mac:universal": "npm run build && electron-builder --mac --universal",
     "build:linux": "npm run build && electron-builder --linux",
-    "build:all": "npm run build && electron-builder --win --mac --linux"
+    "build:all": "npm run build && electron-builder --win --mac --linux",
+    "test": "vitest",
+    "test:ui": "vitest --ui",
+    "test:coverage": "vitest run --coverage"
   },
   "dependencies": {
     "electron-store": "^8.2.0"
@@ -33,10 +36,15 @@
     "@hello-pangea/dnd": "^18.0.1",
     "@mantine/core": "^8.3.12",
     "@mantine/hooks": "^8.3.12",
+    "@testing-library/jest-dom": "^6.9.1",
+    "@testing-library/react": "^16.3.2",
+    "@testing-library/user-event": "^14.6.1",
     "@types/node": "^25.0.6",
     "@types/react": "^19.2.8",
     "@types/react-dom": "^19.2.3",
     "@vitejs/plugin-react": "^5.1.2",
+    "@vitest/coverage-v8": "^4.0.18",
+    "@vitest/ui": "^4.0.18",
     "@xterm/addon-fit": "^0.10.0",
     "@xterm/xterm": "^5.5.0",
     "codemirror": "^6.0.2",
@@ -44,12 +52,14 @@
     "electron-builder": "^26.0.12",
     "electron-vite": "^5.0.0",
     "eslint": "^9.39.1",
+    "jsdom": "^28.1.0",
     "prettier": "^3.7.4",
     "react": "^19.2.3",
     "react-dom": "^19.2.3",
     "typescript": "^5.9.3",
     "uuid": "^13.0.0",
     "vite": "^7.2.6",
+    "vitest": "^4.0.18",
     "zustand": "^5.0.10"
   }
 }

@@ -105,7 +105,7 @@ npm run build:win   # 构建 Windows 安装包
 - **CI/CD**: 配置了 GitHub Actions 自动化工作流，支持多平台构建测试和自动发布。
 - **构建优化**: 集成了 `afterPack` 钩子清理语言包，优化了 `package.json` 依赖结构（移除非运行时必需的 `dependencies`），并清理了项目中冗余的 `devDependencies`（如 `png-to-ico` 等），进一步精简了项目结构和包体积。
 - **日志系统**: 迁移至 Uber Zap 高性能日志库，支持环境区分（开发环境 Console/生产环境 JSON）和上下文结构化日志。
-- **单元测试**: 完善核心模块（API、Model、Worker、WBI 签名）的单元测试，提升项目稳定性。
+- **单元测试**: 集成 Vitest 测试框架，实现针对 `appStore` (Zustand) 的核心业务逻辑覆盖，并在 GitHub Actions 中配置了自动化测试流水线。
 - **macOS 适配**: 新增 `build:mac:arm64` 专门适配 Apple Silicon 芯片打包，加入 `entitlements.mac.plist` 解除库校验，并引入 `afterSign` 钩子强制执行深层 Ad-Hoc 签名，彻底解决 macOS 下 Team ID 不一致导致的防篡改闪退问题。
 - **高保真 UI 重构**: 根据 `design.pen` 高保真设计图全面重构了渲染进程的视觉界面。引入了完整的暗色系设计系统，对齐了背景色（#191919/#1F1F23）、边框色（#2A2A2E）和文字层次。重写了侧边栏、脚本列表、编辑器头部及终端面板，采用自定义 CSS 变量和组件替换部分 Mantine 原生控件，实现了更精致的 CTA 运行按钮阴影、选中态高亮及布局比例，提升了整体视觉的高级感和品牌一致性。
 
