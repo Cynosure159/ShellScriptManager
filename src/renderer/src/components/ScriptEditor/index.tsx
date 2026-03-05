@@ -1,5 +1,5 @@
 import { useEffect, useRef } from 'react'
-import { Button, Select, ActionIcon, Group, Tooltip } from '@mantine/core'
+import { Select, Tooltip } from '@mantine/core'
 import { EditorView, basicSetup } from 'codemirror'
 import { javascript } from '@codemirror/lang-javascript'
 import { oneDark } from '@codemirror/theme-one-dark'
@@ -44,16 +44,13 @@ export default function ScriptEditor() {
     // 注册快捷键
     useEffect(() => {
         const handleKeyDown = (e: KeyboardEvent) => {
-            // 只在有编辑脚本时响应
             if (!editingScript) return
 
-            // 获取组合键状态
             const isCtrlOrCmd = e.ctrlKey || e.metaKey
 
             // Ctrl+S: 保存
             if (isCtrlOrCmd && e.key === 's') {
                 e.preventDefault()
-                // 如果已修改，则执行保存
                 if (useAppStore.getState().isScriptModified) {
                     saveScript()
                 }
@@ -62,7 +59,6 @@ export default function ScriptEditor() {
             // Ctrl+R: 运行
             if (isCtrlOrCmd && e.key === 'r') {
                 e.preventDefault()
-                // 如果当前没在运行，则运行
                 if (!useAppStore.getState().runningScriptId) {
                     runScript()
                 }
@@ -77,7 +73,6 @@ export default function ScriptEditor() {
     useEffect(() => {
         if (!editorRef.current) return
 
-        // 清理旧的编辑器实例
         if (editorViewRef.current) {
             editorViewRef.current.destroy()
         }
@@ -93,9 +88,12 @@ export default function ScriptEditor() {
                 }
             }),
             EditorView.theme({
-                '&': { height: '100%' },
+                '&': { height: '100%', backgroundColor: '#1F1F23' },
                 '.cm-scroller': { overflow: 'auto' },
-                '.cm-content': { fontFamily: 'Consolas, Monaco, monospace', fontSize: '14px' }
+                '.cm-content': { fontFamily: 'Consolas, Monaco, monospace', fontSize: '13px' },
+                '.cm-gutters': { backgroundColor: '#1F1F23', border: 'none', color: '#444' },
+                '.cm-activeLineGutter': { backgroundColor: '#28273A' },
+                '.cm-activeLine': { backgroundColor: '#28273A' }
             })
         ]
 
@@ -152,89 +150,95 @@ export default function ScriptEditor() {
                     />
                 </div>
 
-                <Group gap="xs">
+                <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
                     {/* 分类选择 */}
                     <Select
                         size="xs"
-                        style={{ width: 130 }}
+                        style={{ width: 110 }}
                         data={categories.map(c => ({ value: c.id, label: c.name }))}
                         value={editingScript.categoryId}
                         onChange={(value) => value && updateEditingScript({ categoryId: value })}
+                        styles={{
+                            input: {
+                                backgroundColor: '#2E2E32',
+                                borderColor: 'transparent',
+                                color: '#AAAAAA',
+                                fontSize: 12,
+                                borderRadius: 8,
+                                height: 32,
+                                minHeight: 32,
+                            }
+                        }}
                     />
 
-                    {/* 主要操作按钮：保存、运行 */}
-                    <div className="editor-actions">
-                        <Tooltip label="保存脚本 (Ctrl+S)" position="bottom" withArrow>
-                            <Button
-                                size="xs"
-                                variant="subtle"
-                                disabled={!isScriptModified}
-                                onClick={() => saveScript()}
-                            >
-                                保存
-                            </Button>
+                    {/* 保存按钮 */}
+                    <Tooltip label="保存脚本 (Ctrl+S)" position="bottom" withArrow>
+                        <button
+                            className="btn-save"
+                            disabled={!isScriptModified}
+                            onClick={() => saveScript()}
+                        >
+                            保存
+                        </button>
+                    </Tooltip>
+
+                    {/* 运行/停止按钮 */}
+                    {isRunning ? (
+                        <button className="btn-stop" onClick={() => stopScript()}>
+                            停止
+                        </button>
+                    ) : (
+                        <Tooltip label="运行脚本 (Ctrl+R)" position="bottom" withArrow>
+                            <button className="btn-run" onClick={() => runScript()}>
+                                运行
+                            </button>
                         </Tooltip>
-                        {isRunning ? (
-                            <Button
-                                size="xs"
-                                color="red"
-                                onClick={() => stopScript()}
-                            >
-                                停止
-                            </Button>
-                        ) : (
-                            <Tooltip label="运行脚本 (Ctrl+R)" position="bottom" withArrow>
-                                <Button
-                                    size="xs"
-                                    color="violet"
-                                    onClick={() => runScript()}
-                                >
-                                    运行
-                                </Button>
-                            </Tooltip>
-                        )}
-                    </div>
-                </Group>
+                    )}
+                </div>
             </div>
 
             {/* 2. 中部：编辑器工具栏 (自动换行 | 脚本类型) */}
-            <div style={{
-                padding: '8px 16px',
-                borderBottom: '1px solid #2c2e33',
-                backgroundColor: '#1f2023',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'space-between'
-            }}>
+            <div className="editor-toolbar">
                 {/* 左侧：自动换行 */}
-                <Group gap={8} style={{ cursor: 'pointer' }} onClick={() => toggleWordWrap()}>
-                    <ActionIcon
-                        variant={wordWrap ? 'light' : 'subtle'}
-                        color="violet"
-                        size="xs"
-                        style={{ pointerEvents: 'none' }}
+                <div
+                    style={{ display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer' }}
+                    onClick={() => toggleWordWrap()}
+                >
+                    <svg
+                        width="16" height="16" viewBox="0 0 24 24" fill="none"
+                        stroke={wordWrap ? '#8B7EC8' : '#777'}
+                        strokeWidth="2"
                     >
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                            <path d="M4 6h16M4 12h13a3 3 0 0 1 0 6h-4" />
-                            <path d="M13 15l-3 3 3 3" />
-                        </svg>
-                    </ActionIcon>
-                    <span style={{ fontSize: '12px', color: wordWrap ? '#8B7EC8' : '#909296', userSelect: 'none' }}>
+                        <path d="M4 6h16M4 12h13a3 3 0 0 1 0 6h-4" />
+                        <path d="M13 15l-3 3 3 3" />
+                    </svg>
+                    <span className={`toolbar-label ${wordWrap ? 'active' : ''}`}>
                         自动换行
                     </span>
-                </Group>
+                </div>
 
                 {/* 右侧：脚本类型 */}
-                <Group gap={8}>
-                    <span style={{ fontSize: '12px', color: '#909296' }}>类型:</span>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                    <span className="toolbar-label">类型:</span>
                     <Select
                         size="xs"
-                        style={{ width: 130 }}
+                        style={{ width: 110 }}
                         data={getScriptTypeOptions()}
                         value={editingScript.scriptType || 'batch'}
                         onChange={(value) => value && updateEditingScript({ scriptType: value as ScriptType })}
+                        styles={{
+                            input: {
+                                backgroundColor: '#2E2E32',
+                                borderColor: 'transparent',
+                                color: '#EAEAEA',
+                                fontSize: 12,
+                                borderRadius: 6,
+                                height: 28,
+                                minHeight: 28,
+                            }
+                        }}
                     />
-                </Group>
+                </div>
             </div>
 
             {/* 3. 底部：编辑器容器 */}
