@@ -48,7 +48,9 @@ jobs:
           elif [ "$RUNNER_OS" == "Windows" ]; then
             npm run build:win -- --dir
           elif [ "$RUNNER_OS" == "macOS" ]; then
-            npm run build:mac -- --dir
+            npm run build:mac:x64 -- --dir
+            npm run build:mac:arm64 -- --dir
+            npm run build:mac:universal -- --dir
           fi
         shell: bash
         env:
