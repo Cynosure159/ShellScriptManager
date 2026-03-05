@@ -12,8 +12,8 @@ files:
   - '!{.env,.env.*,.npmrc,pnpm-lock.yaml}'
 asar: true
 asarUnpack:
-  - resources/**
 afterPack: ./removeLocales.js
+afterSign: ./build/afterSign.js
 win:
   executableName: ShellScriptManager
   icon: build/icon.png
@@ -36,6 +36,8 @@ mac:
   target:
     - dmg
   notarize: false
+  entitlements: build/entitlements.mac.plist
+  entitlementsInherit: build/entitlements.mac.plist
 dmg:
   artifactName: ${productName}-${version}.${ext}
 linux:

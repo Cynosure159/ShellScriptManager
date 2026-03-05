@@ -106,6 +106,7 @@ npm run build:win   # 构建 Windows 安装包
 - **构建优化**: 集成了 `afterPack` 钩子清理语言包，优化了 `package.json` 依赖结构（移除非运行时必需的 `dependencies`），并清理了项目中冗余的 `devDependencies`（如 `png-to-ico` 等），进一步精简了项目结构和包体积。
 - **日志系统**: 迁移至 Uber Zap 高性能日志库，支持环境区分（开发环境 Console/生产环境 JSON）和上下文结构化日志。
 - **单元测试**: 完善核心模块（API、Model、Worker、WBI 签名）的单元测试，提升项目稳定性。
+- **macOS 适配**: 新增 `build:mac:arm64` 专门适配 Apple Silicon 芯片打包，加入 `entitlements.mac.plist` 解除库校验，并引入 `afterSign` 钩子强制执行深层 Ad-Hoc 签名，彻底解决 macOS 下 Team ID 不一致导致的防篡改闪退问题。
 
 ## 优化建议 (待办)
 1. **各种 Shell 支持**: 增加对 Git Bash 或 WSL 的自动探测和支持。
