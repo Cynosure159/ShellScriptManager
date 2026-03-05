@@ -1,4 +1,3 @@
-import { ActionIcon } from '@mantine/core'
 import { DragDropContext, Droppable, Draggable, DropResult } from '@hello-pangea/dnd'
 import { useAppStore } from '../../stores/appStore'
 
@@ -48,32 +47,30 @@ export default function ScriptList({ width }: ScriptListProps) {
         <div className="script-list-panel" style={width ? { width, minWidth: width } : undefined}>
             <div className="script-list-header">
                 <span className="script-list-title">脚本</span>
-                <div style={{ display: 'flex', gap: '4px' }}>
-                    <ActionIcon
-                        variant="subtle"
-                        color="violet"
-                        size="sm"
+                <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
+                    <button
+                        className="icon-btn"
                         onClick={() => importScript()}
                         title="导入脚本文件 (.sh/.bat/.ps1)"
+                        style={{ color: '#777' }}
                     >
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                             <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
                             <polyline points="7 10 12 15 17 10" />
                             <line x1="12" y1="15" x2="12" y2="3" />
                         </svg>
-                    </ActionIcon>
-                    <ActionIcon
-                        variant="subtle"
-                        color="violet"
-                        size="sm"
+                    </button>
+                    <button
+                        className="icon-btn"
                         onClick={() => addScript()}
                         title="添加脚本"
+                        style={{ color: '#777' }}
                     >
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                             <line x1="12" y1="5" x2="12" y2="19" />
                             <line x1="5" y1="12" x2="19" y2="12" />
                         </svg>
-                    </ActionIcon>
+                    </button>
                 </div>
             </div>
 
@@ -104,23 +101,23 @@ export default function ScriptList({ width }: ScriptListProps) {
                                                 className={`script-item ${selectedScriptId === script.id ? 'active' : ''} ${snapshot.isDragging ? 'dragging' : ''}`}
                                                 onClick={() => selectScript(script.id)}
                                             >
-                                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-                                                    <div className="script-name">{script.name}</div>
-                                                    <ActionIcon
-                                                        variant="subtle"
-                                                        color="gray"
-                                                        size="md"
+                                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                                    <div style={{ flex: 1, minWidth: 0 }}>
+                                                        <div className="script-name">{script.name}</div>
+                                                        <div className="script-description">{script.description || '暂无备注'}</div>
+                                                    </div>
+                                                    <button
                                                         className="icon-btn danger"
                                                         onClick={(e) => handleDeleteScript(e, script.id)}
                                                         title="删除脚本"
+                                                        style={{ color: '#555', flexShrink: 0 }}
                                                     >
-                                                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                                                             <polyline points="3,6 5,6 21,6" />
                                                             <path d="M19,6v14a2,2,0,0,1-2,2H7a2,2,0,0,1-2-2V6M8,6V4a2,2,0,0,1,2-2h4a2,2,0,0,1,2,2V6" />
                                                         </svg>
-                                                    </ActionIcon>
+                                                    </button>
                                                 </div>
-                                                <div className="script-description">{script.description || '暂无备注'}</div>
                                             </div>
                                         )}
                                     </Draggable>

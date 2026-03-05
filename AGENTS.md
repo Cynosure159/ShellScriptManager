@@ -107,6 +107,7 @@ npm run build:win   # 构建 Windows 安装包
 - **日志系统**: 迁移至 Uber Zap 高性能日志库，支持环境区分（开发环境 Console/生产环境 JSON）和上下文结构化日志。
 - **单元测试**: 完善核心模块（API、Model、Worker、WBI 签名）的单元测试，提升项目稳定性。
 - **macOS 适配**: 新增 `build:mac:arm64` 专门适配 Apple Silicon 芯片打包，加入 `entitlements.mac.plist` 解除库校验，并引入 `afterSign` 钩子强制执行深层 Ad-Hoc 签名，彻底解决 macOS 下 Team ID 不一致导致的防篡改闪退问题。
+- **高保真 UI 重构**: 根据 `design.pen` 高保真设计图全面重构了渲染进程的视觉界面。引入了完整的暗色系设计系统，对齐了背景色（#191919/#1F1F23）、边框色（#2A2A2E）和文字层次。重写了侧边栏、脚本列表、编辑器头部及终端面板，采用自定义 CSS 变量和组件替换部分 Mantine 原生控件，实现了更精致的 CTA 运行按钮阴影、选中态高亮及布局比例，提升了整体视觉的高级感和品牌一致性。
 
 ## 优化建议 (待办)
 1. **各种 Shell 支持**: 增加对 Git Bash 或 WSL 的自动探测和支持。

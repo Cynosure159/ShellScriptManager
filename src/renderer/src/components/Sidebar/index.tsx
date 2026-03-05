@@ -88,23 +88,22 @@ export default function Sidebar({ isCollapsed, onToggleCollapse }: SidebarProps)
 
     return (
         <div className={`sidebar ${isCollapsed ? 'collapsed' : ''}`} style={{ width: isCollapsed ? 60 : 200, minWidth: isCollapsed ? 60 : 200, position: 'relative' }}>
-            <div className="sidebar-header" style={{ justifyContent: 'space-between', padding: isCollapsed ? '16px 0' : '16px' }}>
+            <div className="sidebar-header" style={{ justifyContent: 'space-between', padding: isCollapsed ? '0' : '0 12px', height: 44 }}>
                 <span className="sidebar-title" style={{ display: isCollapsed ? 'none' : 'block' }}>分类</span>
                 {isCollapsed && <span className="sidebar-title" style={{ width: '100%', textAlign: 'center', fontSize: '12px' }}>分类</span>}
 
                 {!isCollapsed && (
-                    <ActionIcon
-                        variant="subtle"
-                        color="violet"
-                        size="sm"
+                    <button
+                        className="icon-btn"
                         onClick={() => setIsAddModalOpen(true)}
                         title="添加分类"
+                        style={{ color: '#777' }}
                     >
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                             <line x1="12" y1="5" x2="12" y2="19" />
                             <line x1="5" y1="12" x2="19" y2="12" />
                         </svg>
-                    </ActionIcon>
+                    </button>
                 )}
             </div>
 
@@ -168,14 +167,10 @@ export default function Sidebar({ isCollapsed, onToggleCollapse }: SidebarProps)
             </div>
 
             {/* 底部操作按钮 */}
-            <div style={{ padding: '12px', borderTop: '1px solid #2c2e33', display: 'flex', flexDirection: 'column', gap: '8px', alignItems: 'center' }}>
+            <div className="sidebar-footer" style={{ display: isCollapsed ? 'flex' : undefined, alignItems: isCollapsed ? 'center' : undefined }}>
                 {!isCollapsed && (
-                    <Group gap="xs" style={{ width: '100%' }}>
-                        <Button
-                            variant="subtle"
-                            color="gray"
-                            size="xs"
-                            style={{ flex: 1 }}
+                    <div className="sidebar-footer-btns">
+                        <button
                             onClick={async () => {
                                 const result = await importData()
                                 if (result.success) {
@@ -184,12 +179,8 @@ export default function Sidebar({ isCollapsed, onToggleCollapse }: SidebarProps)
                             }}
                         >
                             导入
-                        </Button>
-                        <Button
-                            variant="subtle"
-                            color="gray"
-                            size="xs"
-                            style={{ flex: 1 }}
+                        </button>
+                        <button
                             onClick={async () => {
                                 const result = await exportData()
                                 if (result.success) {
@@ -198,36 +189,22 @@ export default function Sidebar({ isCollapsed, onToggleCollapse }: SidebarProps)
                             }}
                         >
                             导出
-                        </Button>
-                    </Group>
+                        </button>
+                    </div>
                 )}
 
-                <Button
-                    variant="light"
-                    color="gray"
-                    size="xs"
-                    fullWidth={!isCollapsed}
-                    style={{ width: isCollapsed ? '32px' : '100%', padding: isCollapsed ? 0 : undefined }}
-                    leftSection={
-                        !isCollapsed && (
-                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                                <circle cx="12" cy="12" r="3"></circle>
-                                <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
-                            </svg>
-                        )
-                    }
+                <button
+                    className="settings-btn"
                     onClick={() => setIsSettingsOpen(true)}
                     title={isCollapsed ? "全局设置" : undefined}
+                    style={isCollapsed ? { width: 36, height: 36, padding: 0, minWidth: 36 } : undefined}
                 >
-                    {isCollapsed ? (
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                            <circle cx="12" cy="12" r="3"></circle>
-                            <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
-                        </svg>
-                    ) : (
-                        "全局设置"
-                    )}
-                </Button>
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                        <circle cx="12" cy="12" r="3"></circle>
+                        <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+                    </svg>
+                    {!isCollapsed && <span>全局设置</span>}
+                </button>
             </div>
 
             {/* 折叠/展开按钮 - 贴着边线的左半圆 */}
@@ -268,7 +245,7 @@ export default function Sidebar({ isCollapsed, onToggleCollapse }: SidebarProps)
                 )}
             </div>
 
-            {/* 当 Modal 和 SettingsModal 渲染... */}
+            {/* 弹窗 */}
             <SettingsModal opened={isSettingsOpen} onClose={() => setIsSettingsOpen(false)} />
 
             {/* 添加分类弹窗 */}
